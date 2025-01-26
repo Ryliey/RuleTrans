@@ -8,7 +8,7 @@ import (
 
 	"github.com/Ryliey/RuleTrans/internal/converter"
 	"github.com/Ryliey/RuleTrans/internal/doc"
-	"github.com/Ryliey/RuleTrans/internal/git" // 导入 git 包以使用 FileChange 类型
+	"github.com/Ryliey/RuleTrans/internal/git"
 )
 
 type FileProcessor struct {
@@ -23,22 +23,20 @@ func NewProcessor(clash, singbox converter.Converter) *FileProcessor {
 	}
 }
 
-// 使用 git.FileChange 类型
 func (p *FileProcessor) Process(changes []git.FileChange) {
-	var processedPaths []string
+	processedDirs := make(map[string]bool)
 
 	for _, fc := range changes {
 		switch {
 		case strings.HasSuffix(fc.Path, ".json"):
-			p.handleSingBoxFile(fc, processedPaths)
+			p.handleSingBoxFile(fc, processedDirs)
 		case strings.HasSuffix(fc.Path, ".yaml"):
-			p.handleClashFile(fc, processedPaths)
+			p.handleClashFile(fc, processedDirs)
 		}
 	}
 }
 
-// 使用 git.FileChange 类型
-func (p *FileProcessor) handleSingBoxFile(fc git.FileChange, processedPaths []string) {
+func (p *FileProcessor) handleSingBoxFile(fc git.FileChange, processedDirs map[string]bool) {
 	switch fc.Status {
 	case "A", "M":
 		if err := p.SingBoxConverter.Convert(fc.Path); err != nil {
@@ -46,12 +44,11 @@ func (p *FileProcessor) handleSingBoxFile(fc git.FileChange, processedPaths []st
 		}
 		updateReadme(fc.Path)
 	case "D":
-		cleanDeletedFile(fc.Path, p.SingBoxConverter)
+		p.cleanTargetResources(fc.Path, p.SingBoxConverter, processedDirs)
 	}
 }
 
-// 使用 git.FileChange 类型
-func (p *FileProcessor) handleClashFile(fc git.FileChange, processedPaths []string) {
+func (p *FileProcessor) handleClashFile(fc git.FileChange, processedDirs map[string]bool) {
 	switch fc.Status {
 	case "A", "M":
 		if err := p.ClashConverter.Convert(fc.Path); err != nil {
@@ -59,7 +56,7 @@ func (p *FileProcessor) handleClashFile(fc git.FileChange, processedPaths []stri
 		}
 		updateReadme(fc.Path)
 	case "D":
-		cleanDeletedFile(fc.Path, p.ClashConverter)
+		p.cleanTargetResources(fc.Path, p.ClashConverter, processedDirs)
 	}
 }
 
@@ -69,10 +66,30 @@ func updateReadme(path string) {
 		log.Printf("Error updating README: %v", err)
 	}
 }
+func (p *FileProcessor) cleanTargetResources(path string, conv converter.Converter, processedDirs map[string]bool) {
+	// 获取源目录（Clash/Bing）
+	sourceDir := filepath.Dir(path)
 
-func cleanDeletedFile(path string, converter converter.Converter) {
-	target := converter.GetTargetPath(path)
-	if err := os.Remove(target); err != nil && !os.IsNotExist(err) {
-		log.Printf("Error removing file: %v", err)
+	// 获取目标目录（Sing-Box/Bing）
+	targetDir := conv.GetTargetPath(sourceDir)
+	log.Printf("Directory mapping: [%s] => [%s]", sourceDir, targetDir)
+
+	// 需要删除的目录列表
+	dirsToDelete := []string{
+		sourceDir, // 原始目录
+		targetDir, // 目标目录
+	}
+
+	for _, dir := range dirsToDelete {
+		if processedDirs[dir] {
+			continue
+		}
+		processedDirs[dir] = true
+
+		if err := os.RemoveAll(dir); err != nil && !os.IsNotExist(err) {
+			log.Printf("Delete error: %v", err)
+		} else {
+			log.Printf("Successfully deleted: %s", dir)
+		}
 	}
 }

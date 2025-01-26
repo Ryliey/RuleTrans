@@ -7,7 +7,16 @@ import (
 )
 
 func ConvertPath(path string, from string, to string) string {
-	return strings.Replace(path, from, to, 1)
+	// 统一处理路径分隔符
+	normalizedPath := filepath.ToSlash(path)
+	from = filepath.ToSlash(from) + "/"
+	to = filepath.ToSlash(to) + "/"
+
+	// 精确替换根目录
+	if strings.HasPrefix(normalizedPath, from) {
+		return filepath.FromSlash(to + normalizedPath[len(from):])
+	}
+	return filepath.FromSlash(normalizedPath)
 }
 
 func EnsureDirectory(path string) error {
@@ -22,4 +31,12 @@ func ChangeExtension(path string, newExt string) string {
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func IsDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
 }

@@ -11,12 +11,18 @@ import (
 )
 
 func main() {
-	changes, err := git.GetDiffFiles(
-		os.Getenv("BEFORE_COMMIT"),
-		os.Getenv("AFTER_COMMIT"),
-	)
+	before := os.Getenv("BEFORE_COMMIT")
+	after := os.Getenv("AFTER_COMMIT")
+	log.Printf("Comparing commits: %s..%s", before, after)
+
+	changes, err := git.GetDiffFiles(before, after)
 	if err != nil {
 		log.Fatalf("Failed to get changes: %v", err)
+	}
+	log.Printf("Found %d file changes", len(changes))
+
+	for i, fc := range changes {
+		log.Printf("[%d] %s %s", i+1, fc.Status, fc.Path)
 	}
 
 	clashConv := clash.NewConverter()
@@ -24,4 +30,5 @@ func main() {
 
 	proc := processor.NewProcessor(clashConv, singboxConv)
 	proc.Process(changes)
+	log.Println("Processing completed")
 }

@@ -19,8 +19,15 @@ type BaseConverter struct {
 }
 
 func (c *BaseConverter) GetTargetPath(sourcePath string) string {
+	// 转换基础路径
 	targetPath := fileutil.ConvertPath(sourcePath, c.SourceDir, c.TargetDir)
-	return fileutil.ChangeExtension(targetPath, c.TargetExt)
+
+	// 仅当源路径是文件时修改扩展名
+	if !fileutil.IsDir(sourcePath) {
+		targetPath = fileutil.ChangeExtension(targetPath, c.TargetExt)
+	}
+
+	return targetPath
 }
 
 func ProcessFile(conv Converter, path string) error {

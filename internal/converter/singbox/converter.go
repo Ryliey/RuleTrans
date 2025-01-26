@@ -8,24 +8,24 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Ryliey/RuleTrans/internal/converter"
 	"github.com/Ryliey/RuleTrans/pkg/fileutil"
 	"github.com/Ryliey/RuleTrans/pkg/types"
 	"gopkg.in/yaml.v3"
 )
 
 type SingBoxConverter struct {
-	SourceDir string
-	TargetDir string
-	SourceExt string
-	TargetExt string
+	converter.BaseConverter
 }
 
 func NewConverter() *SingBoxConverter {
 	return &SingBoxConverter{
-		SourceDir: "Clash",
-		TargetDir: "Sing-Box",
-		SourceExt: ".yaml",
-		TargetExt: ".json",
+		BaseConverter: converter.BaseConverter{
+			SourceDir: "Sing-Box",
+			TargetDir: "Clash",
+			SourceExt: ".json",
+			TargetExt: ".yaml",
+		},
 	}
 }
 
