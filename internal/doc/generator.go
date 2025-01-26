@@ -1,3 +1,4 @@
+// doc/doc.go
 package doc
 
 import (
@@ -12,19 +13,19 @@ const readmeTmpl = `# {{.Name}}
 ## 链接
 
 **Github**
-` + "`" + `
+` + "```" + `
 {{.GithubURL}}
-` + "`" + `
+` + "```" + `
 
 **CDN**
-` + "`" + `
+` + "```" + `
 {{.CDNURL}}
-` + "`" + `
+` + "```" + `
 
 **GitHub Proxy**
-` + "`" + `
+` + "```" + `
 {{.ProxyURL}}
-` + "`" + `
+` + "```" + `
 `
 
 type ReadmeData struct {
@@ -36,14 +37,15 @@ type ReadmeData struct {
 
 // GenerateReadme 生成或更新 README.md 文件
 func GenerateReadme(readmePath string) error {
-	// 从仓库根目录获取相对路径
-	relPath := strings.TrimPrefix(filepath.Dir(readmePath), ".")
+	// 从仓库根目录获取相对路径（统一转换为正斜杠）
+	relPath := strings.ReplaceAll(filepath.Dir(readmePath), string(filepath.Separator), "/")
+	relPath = strings.TrimPrefix(relPath, ".")
 	relPath = strings.TrimPrefix(relPath, "/")
 
 	// 从目录名获取规则名称
 	ruleName := filepath.Base(filepath.Dir(readmePath))
 
-	// 生成 URL
+	// 生成 URL（强制使用正斜杠）
 	baseURL := "https://raw.githubusercontent.com/Ryliey/Rules/main/"
 	data := ReadmeData{
 		Name:      ruleName,
@@ -73,6 +75,8 @@ func GenerateReadme(readmePath string) error {
 func getExtension(path string) string {
 	if strings.Contains(path, "Clash") {
 		return ".yaml"
+	} else if strings.Contains(path, "Sing-Box") {
+		return ".json"
 	}
-	return ".json"
+	return ""
 }

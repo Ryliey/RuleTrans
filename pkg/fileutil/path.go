@@ -7,12 +7,10 @@ import (
 )
 
 func ConvertPath(path string, from string, to string) string {
-	// 统一处理路径分隔符
 	normalizedPath := filepath.ToSlash(path)
 	from = filepath.ToSlash(from) + "/"
 	to = filepath.ToSlash(to) + "/"
 
-	// 精确替换根目录
 	if strings.HasPrefix(normalizedPath, from) {
 		return filepath.FromSlash(to + normalizedPath[len(from):])
 	}
