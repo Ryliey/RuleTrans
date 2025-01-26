@@ -67,17 +67,21 @@ func updateReadme(path string) {
 	}
 }
 func (p *FileProcessor) cleanTargetResources(path string, conv converter.Converter, processedDirs map[string]bool) {
-	// 获取源目录（Clash/Bing）
+	// 获取源目录
 	sourceDir := filepath.Dir(path)
 
-	// 获取目标目录（Sing-Box/Bing）
+	// 获取目标目录
 	targetDir := conv.GetTargetPath(sourceDir)
-	log.Printf("Directory mapping: [%s] => [%s]", sourceDir, targetDir)
+
+	// 手动移除目标目录的扩展名
+	targetDirWithoutExt := strings.TrimSuffix(targetDir, filepath.Ext(targetDir))
+
+	log.Printf("Directory mapping: [%s] => [%s]", sourceDir, targetDirWithoutExt)
 
 	// 需要删除的目录列表
 	dirsToDelete := []string{
-		sourceDir, // 原始目录
-		targetDir, // 目标目录
+		sourceDir,           // 原始目录
+		targetDirWithoutExt, // 目标目录（移除扩展名）
 	}
 
 	for _, dir := range dirsToDelete {
