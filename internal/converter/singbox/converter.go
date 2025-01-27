@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/Ryliey/RuleTrans/internal/converter"
-	"github.com/Ryliey/RuleTrans/pkg/fileutil"
 	"github.com/Ryliey/RuleTrans/pkg/types"
 	"gopkg.in/yaml.v3"
 )
@@ -27,11 +26,6 @@ func NewConverter() *SingBoxConverter {
 			TargetExt: ".yaml",
 		},
 	}
-}
-
-func (c *SingBoxConverter) GetTargetPath(sourcePath string) string {
-	targetPath := fileutil.ConvertPath(sourcePath, c.SourceDir, c.TargetDir)
-	return fileutil.ChangeExtension(targetPath, c.TargetExt)
 }
 
 func (c *SingBoxConverter) Convert(path string) error {

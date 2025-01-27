@@ -1,8 +1,6 @@
 package converter
 
 import (
-	"fmt"
-
 	"github.com/Ryliey/RuleTrans/pkg/fileutil"
 )
 
@@ -28,14 +26,4 @@ func (c *BaseConverter) GetTargetPath(sourcePath string) string {
 	}
 
 	return targetPath
-}
-
-func ProcessFile(conv Converter, path string) error {
-	targetPath := conv.GetTargetPath(path)
-
-	if err := fileutil.EnsureDirectory(targetPath); err != nil {
-		return fmt.Errorf("failed to create directory: %w", err)
-	}
-
-	return conv.Convert(path)
 }
