@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -101,5 +102,26 @@ func (c *ClashConverter) Convert(path string) error {
 	}
 
 	fmt.Printf("Successfully converted and saved to: %s\n", outputPath)
+
+	// 编译 JSON 为 SRS 文件
+	if err := compileToSRS(outputPath); err != nil {
+		return fmt.Errorf("failed to compile SRS file: %w", err)
+	}
+
+	return nil
+}
+
+// compileToSRS 调用 sing-box 命令编译 JSON 为二进制 SRS 文件
+func compileToSRS(jsonPath string) error {
+	srsPath := strings.TrimSuffix(jsonPath, ".json") + ".srs"
+	cmd := exec.Command("sing-box", "rule-set", "compile", "--output", srsPath, jsonPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("command execution failed: %w", err)
+	}
+
+	fmt.Printf("Successfully compiled SRS file: %s\n", srsPath)
 	return nil
 }

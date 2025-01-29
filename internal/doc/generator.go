@@ -1,4 +1,3 @@
-// doc/doc.go
 package doc
 
 import (
@@ -76,7 +75,7 @@ func getExtension(path string) string {
 	if strings.Contains(path, "Clash") {
 		return ".yaml"
 	} else if strings.Contains(path, "Sing-Box") {
-		return ".json"
+		return ".srs"
 	}
 	return ""
 }

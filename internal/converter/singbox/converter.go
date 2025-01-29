@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -29,6 +30,11 @@ func NewConverter() *SingBoxConverter {
 }
 
 func (c *SingBoxConverter) Convert(path string) error {
+	// 检查 sing-box 是否安装
+	if err := checkSingBoxInstalled(); err != nil {
+		return err
+	}
+
 	// 读取 JSON 文件
 	jsonData, err := os.ReadFile(path)
 	if err != nil {
@@ -87,7 +93,36 @@ func (c *SingBoxConverter) Convert(path string) error {
 	if err := os.WriteFile(outputPath, yamlData, 0644); err != nil {
 		return fmt.Errorf("failed to write YAML file: %w", err)
 	}
-
 	fmt.Printf("Successfully converted and saved to: %s\n", outputPath)
+
+	// 编译原始的 JSON 文件为 SRS
+	if err := compileToSRS(path); err != nil {
+		return fmt.Errorf("failed to compile JSON to SRS: %w", err)
+	}
+
+	return nil
+}
+
+// compileToSRS 调用 sing-box 命令编译 JSON 为 SRS
+func compileToSRS(jsonPath string) error {
+	srsPath := strings.TrimSuffix(jsonPath, ".json") + ".srs"
+	cmd := exec.Command("sing-box", "rule-set", "compile", "--output", srsPath, jsonPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("command execution failed: %w", err)
+	}
+
+	fmt.Printf("Successfully compiled to SRS: %s\n", srsPath)
+	return nil
+}
+
+// checkSingBoxInstalled 检查 sing-box 是否安装
+func checkSingBoxInstalled() error {
+	_, err := exec.LookPath("sing-box")
+	if err != nil {
+		return fmt.Errorf("sing-box is not installed or not in PATH: %w", err)
+	}
 	return nil
 }
