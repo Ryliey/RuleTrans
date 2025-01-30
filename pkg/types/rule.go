@@ -7,7 +7,6 @@ type Rule struct {
 	DomainKeyword    []string `json:"domain_keyword,omitempty" yaml:"domain_keyword,omitempty"`
 	DomainRegex      []string `json:"domain_regex,omitempty" yaml:"domain_regex,omitempty"`
 	IpCidr           []string `json:"ip_cidr,omitempty" yaml:"ip_cidr,omitempty"`
-	IpCidr6          []string `json:"ip_cidr6,omitempty" yaml:"ip_cidr6,omitempty"`
 	SourceIpCidr     []string `json:"source_ip_cidr,omitempty" yaml:"source_ip_cidr,omitempty"`
 	Port             []string `json:"port,omitempty" yaml:"port,omitempty"`
 	SourcePort       []string `json:"source_port,omitempty" yaml:"source_port,omitempty"`
@@ -35,7 +34,7 @@ var RuleTypeMapping = map[string]string{
 	"DOMAIN-KEYWORD":     "domain_keyword",
 	"DOMAIN-REGEX":       "domain_regex",
 	"IP-CIDR":            "ip_cidr",
-	"IP-CIDR6":           "ip_cidr6",
+	"IP-CIDR6":           "ip_cidr",
 	"SRC-IP-CIDR":        "source_ip_cidr",
 	"DST-PORT":           "port",
 	"SRC-PORT":           "source_port",
