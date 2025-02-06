@@ -16,22 +16,28 @@ const readmeTmpl = `# {{.Name}}
 {{.GithubURL}}
 ` + "```" + `
 
-**CDN**
-` + "```" + `
-{{.CDNURL}}
-` + "```" + `
-
 **GitHub Proxy**
 ` + "```" + `
 {{.ProxyURL}}
 ` + "```" + `
+
+**jsdelivr**
+` + "```" + `
+{{.JsdelivrURL}}
+` + "```" + `
+
+**jsdelivrCF**
+` + "```" + `
+{{.JsdelivrCFURL}}
+` + "```" + `
 `
 
 type ReadmeData struct {
-	Name      string
-	GithubURL string
-	CDNURL    string
-	ProxyURL  string
+	Name          string
+	GithubURL     string
+	ProxyURL      string
+	JsdelivrURL   string
+	JsdelivrCFURL string
 }
 
 // GenerateReadme 生成或更新 README.md 文件
@@ -47,10 +53,11 @@ func GenerateReadme(readmePath string) error {
 	// 生成 URL（强制使用正斜杠）
 	baseURL := "https://raw.githubusercontent.com/Ryliey/Rules/main/"
 	data := ReadmeData{
-		Name:      ruleName,
-		GithubURL: baseURL + relPath + "/" + ruleName + getExtension(relPath),
-		CDNURL:    "https://cdn.jsdelivr.net/gh/ryliey/Rules@main/" + relPath + "/" + ruleName + getExtension(relPath),
-		ProxyURL:  "https://ghgo.xyz/" + baseURL + relPath + "/" + ruleName + getExtension(relPath),
+		Name:          ruleName,
+		GithubURL:     baseURL + relPath + "/" + ruleName + getExtension(relPath),
+		ProxyURL:      "https://ghgo.xyz/" + baseURL + relPath + "/" + ruleName + getExtension(relPath),
+		JsdelivrURL:   "https://cdn.jsdelivr.net/gh/ryliey/Rules@main/" + relPath + "/" + ruleName + getExtension(relPath),
+		JsdelivrCFURL: "https://testingcf.jsdelivr.net/gh/ryliey/Rules@main/" + relPath + "/" + ruleName + getExtension(relPath),
 	}
 
 	// 解析并执行模板
